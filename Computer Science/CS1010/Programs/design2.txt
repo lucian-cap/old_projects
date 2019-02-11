@@ -1,0 +1,7 @@
+1. Greet user and ask for input
+2. Take absolute value of input and turn it into an integer (it it is not already)
+3. loop from 1 to n
+	4. Set accumulator to 0
+	5. Loop from 1 to n
+		6. Add index of first counter to accumulator
+		7. Print result
