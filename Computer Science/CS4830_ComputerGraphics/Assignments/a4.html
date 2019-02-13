@@ -39,11 +39,14 @@
                             // will be zero in the first frame.
 
     var image;
+	var allLoaded = false;
+	var frameNumber = 0;
+	var startTime = 0;
 
 
     function draw() {
 		frameNumber ++;
-	
+		
         graphics.clearRect(0,0,canvas.width,canvas.height);  // Clear the canvas, so it shows its background color.
     } // end of draw()
     
@@ -53,7 +56,8 @@
         var code = evt.keyCode;  // Numerical code for key that was pressed.
         switch (code) {
 		case 37:  // left arrow key
-		    break;
+		    graphics.drawImage(image, 0, 0, 60, 45);
+			break;
 		case 39:  // right arrow key
 		    break;
 		case 38:  // up arrow key
@@ -116,12 +120,16 @@
         elapsedTimeMillis = 0;
         startTime = Date.now();  // current time, in milliseconds.
         draw();  // Call draw() to draw on the canvas.
+		
         if (!window.requestAnimationFrame) { // This is for Internet Explorer 9
             window.requestAnimationFrame = function(callback) {
-                setTimeout(callback, 1000/60);    
+                setTimeout(callback, 1000/60);
             }
         }
+		
         requestAnimationFrame(doFrame);
+		
+		
     }
     
 </script>
