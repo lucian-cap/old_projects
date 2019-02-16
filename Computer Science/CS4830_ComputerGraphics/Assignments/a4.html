@@ -42,27 +42,88 @@
 	var allLoaded = false;
 	var frameNumber = 0;
 	var startTime = 0;
+	var snake = [];
+	var start_x = 60;
+	var start_y = 0;
+	var length = 4;
+	var direction = 1;
+	var death = 0;
 
 
     function draw() {
 		frameNumber ++;
 		
-        graphics.clearRect(0,0,canvas.width,canvas.height);  // Clear the canvas, so it shows its background color.
-    } // end of draw()
+
+        graphics.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas, so it shows its background color.
+		if(death == 0){
+			var oldX = start_x;
+			var oldY = start_y;
+			
+			switch(direction){
+				case 1: 
+					start_x += 20;
+					break;
+				case 2: start_y += 20;
+					break;
+				case 3: start_x -= 20;
+					break;
+				case 0: start_y -= 20;
+					break;
+				}
+			var temp = [];
+			temp.push(new Float32Array([start_x, start_y]));
+			temp.push(new Float32Array([oldX, oldY]));
+			
+			for(var i = 1; i < snake.length -1 ; i++){
+				temp.push(snake[i]);
+			}
+			for(var i = 0; i < temp.length; i++){
+				graphics.beginPath();
+				graphics.rect(temp[i][0], snake[i][1], 20, 20);
+				if(i == 0){
+					graphics.fillStyle = "black";
+					graphics.fill();
+				}
+				else{
+					graphics.fillStyle = "blue";
+					graphics.fill();
+				}
+				graphics.closePath();
+			}
+			snake = temp;
+		}
+		else{
+			graphics.font = "30px Arial";
+			graphics.fillText("You Lost! Refresh the page to play again", 175, 200);
+		}
+		
+		if(snake[0][0] == -20 || snake[0][0] == 820 || snake[0][1] == -20 || snake[0][1] == 620)
+				death = 1;
+		
+			
+	
+	} // end of draw()
     
     
 
     function doKeyDown(evt) {
         var code = evt.keyCode;  // Numerical code for key that was pressed.
         switch (code) {
-		case 37:  // left arrow key
-		    graphics.drawImage(image, 0, 0, 60, 45);
+		case 37:  
+			if(direction != 1)	
+				direction = 3;// left arrow key
 			break;
-		case 39:  // right arrow key
+		case 39:  
+			if(direction != 3)
+				direction = 1;// right arrow key
 		    break;
-		case 38:  // up arrow key
+		case 38:  
+			if(direction != 2)
+				direction = 0;// up arrow key
 		    break;
-		case 40:  // down arrow key
+		case 40:  
+			if(direction != 0)
+				direction = 2;// down arrow key
 		    break;
         }
     }
@@ -77,9 +138,13 @@
         elapsedTimeMillis = Date.now() - startTime;
 
 		// GAME LOGIC here
-	
-        draw();
-
+		if(frameNumber % 6 == 0){
+			draw();
+		
+			
+		
+			
+		}
         requestAnimationFrame(doFrame);
     }
     
@@ -115,11 +180,22 @@
 
 		// handle keyboard
         document.addEventListener("keydown", doKeyDown, false);
-
+		
+		
+		for(var i = 0; i < 4; i++){
+			snake.push(new Float32Array([start_x, start_y]));
+			start_x -= 20;
+		}
+		start_x = 60;
+		
+		
         frameNumber = 0;
         elapsedTimeMillis = 0;
         startTime = Date.now();  // current time, in milliseconds.
         draw();  // Call draw() to draw on the canvas.
+		
+		
+		
 		
         if (!window.requestAnimationFrame) { // This is for Internet Explorer 9
             window.requestAnimationFrame = function(callback) {
