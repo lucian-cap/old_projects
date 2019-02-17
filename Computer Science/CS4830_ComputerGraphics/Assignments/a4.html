@@ -48,14 +48,19 @@
 	var length = 4;
 	var direction = 1;
 	var death = 0;
+	var food = [];
+	var score = 0;
 
 
     function draw() {
 		frameNumber ++;
+		graphics.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas, so it shows its background color.
 		
-
-        graphics.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas, so it shows its background color.
+		
 		if(death == 0){
+		
+			drawFood();
+		
 			var oldX = start_x;
 			var oldY = start_y;
 			
@@ -97,15 +102,15 @@
 			graphics.fillText("You Lost! Refresh the page to play again", 175, 200);
 		}
 		
-		if(snake[0][0] == -20 || snake[0][0] == 820 || snake[0][1] == -20 || snake[0][1] == 620)
-				death = 1;
+		
 		
 			
 	
 	} // end of draw()
     
     
-
+	//event listener for kay presses, the if statements handle the case where keys are pressed that are opposite to the current
+	//direction, and thus shouldn't be considered
     function doKeyDown(evt) {
         var code = evt.keyCode;  // Numerical code for key that was pressed.
         switch (code) {
@@ -141,9 +146,23 @@
 		if(frameNumber % 6 == 0){
 			draw();
 		
+			//checks to see if the head of the snake is one block past any of the borders
+			if(snake[0][0] == -20 || snake[0][0] == 820 || snake[0][1] == -20 || snake[0][1] == 620)
+				death = 1;
 			
-		
+			//iterates through the food array, if the snakes head matches the location of any of the food elements
+			for(var i = 0; i < food.length; i++){
+				if(snake[0][0] == food[i][0] && snake[0][1] == food[i][1]){
+					addToSnake();
+					food.splice(i, 1);
+					food.push(new Float32Array([Math.floor(Math.random() * 20) * 40, Math.floor(Math.random() * 20) * 20]));
+					checkFood();
+					score += 10;
+					document.getElementById('score').innerHTML = score;
+				}
+			}
 			
+			testCollision();
 		}
         requestAnimationFrame(doFrame);
     }
@@ -181,32 +200,84 @@
 		// handle keyboard
         document.addEventListener("keydown", doKeyDown, false);
 		
-		
+		//fills the snake array with the initial values for the body
 		for(var i = 0; i < 4; i++){
 			snake.push(new Float32Array([start_x, start_y]));
 			start_x -= 20;
 		}
 		start_x = 60;
 		
+		//fills the food array, so that food is drawn 
+		makeFood();
 		
-        frameNumber = 0;
+		frameNumber = 0;
         elapsedTimeMillis = 0;
         startTime = Date.now();  // current time, in milliseconds.
         draw();  // Call draw() to draw on the canvas.
 		
 		
-		
-		
-        if (!window.requestAnimationFrame) { // This is for Internet Explorer 9
+		if (!window.requestAnimationFrame) { // This is for Internet Explorer 9
             window.requestAnimationFrame = function(callback) {
                 setTimeout(callback, 1000/60);
             }
         }
 		
         requestAnimationFrame(doFrame);
-		
+				
+		document.getElementById('score').innerHTML = '0';
 		
     }
+	
+	//Fills the food array, once they've been added the checkFood function is called to ensure different places
+	function makeFood(){
+		food.push(new Float32Array([Math.floor(Math.random() * 20) * 40, Math.floor(Math.random() * 20) * 20]));
+		food.push(new Float32Array([Math.floor(Math.random() * 20) * 40, Math.floor(Math.random() * 20) * 20]));
+		checkFood();
+	}
+	
+	//recursive function, checks to make sure the food in the array have unique locations, if they don't then one is changed and the method is called again to 
+	//check the new locations. Probably not the best way to do this but it should work
+	function checkFood(){
+		for(var i=0; i < food.length; i++){
+			for(var ix = i + 1; ix < food.length; ix++){
+				if(food[i][0] == food[ix][0] && food[i][1] == food[ix][1]){
+					food[ix][0] = Math.floor(Math.random() * 20) * 40;
+					food[ix][1] = Math.floor(Math.random() * 20) * 20;
+					checkFood();
+				}
+			}
+		}
+	}
+	
+	//little function called by draw function to draw the food items onto the canvas
+	function drawFood(){
+		for(var i = 0; i <food.length; i++){
+				graphics.beginPath();
+				graphics.rect(food[i][0], food[i][1], 20, 20);
+				graphics.fillStyle = "red";
+				graphics.fill();
+				graphics.closePath();
+		}
+	}
+	
+	function addToSnake(){
+		var ind = snake.length-1;
+		if(direction == 0)
+			snake.push(new Float32Array([snake[ind][0] , snake[ind][1] + 20]));
+		else if(direction == 1)
+			snake.push(new Float32Array([snake[ind][0] - 20 , snake[ind][1]]));
+		else if(direction == 2)
+			snake.push(new Float32Array([snake[ind][0] , snake[ind][1]  - 20]));
+		else
+			snake.push(new Float32Array([snake[ind][0] + 20 , snake[ind][1]]));
+	}
+	
+	function testCollision(){
+		for(var i = 1; i < snake.length; i++){
+			if(snake[0][0] == snake[i][0] && snake[0][1] == snake[i][1])
+				death = 1;
+		}
+	}
     
 </script>
 </head>
