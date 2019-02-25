@@ -108,7 +108,7 @@ function init() {
 	frame = 9;
 	gAngle = 0;
 	//create perspective projection matrix
-	P = perspective(1, 1, 1, 255);
+	P = perspective(45, 1, .001, 100);
 	r = rotateZ(0);
 
 	//create objects
@@ -116,8 +116,7 @@ function init() {
 	for(var i = 0; i<NRSTARS; i++) 
 	{
 		var location = math.matrix([(Math.random() * 2 - 1), (Math.random() * 2 - 1), (-1 * (Math.random() * 255)), 1]); // each location is a 4x1 vertex
-		if(i ==0)
-			console.log(location.subset(math.index([2])));
+		
 		objects.push(location);
 	}
 
@@ -126,7 +125,7 @@ function init() {
 
     document.getElementById('myslider').oninput = function() {
 		var newFocal = this.value; // TODO: implement logic that updates the projection matrix
-		P = perspective(newFocal, 1, 1, 255);
+		P = perspective(newFocal, 1, .001, 100);
 	}
 
 	// start clock
@@ -178,7 +177,7 @@ function setPixel(x, y, depth) {
 	context.beginPath();
 	context.strokeStyle = rgbToHex(red, 0, 0);
 	context.lineWidth = 0.004;
-	context.rect(x, y, (depth/canvas.width)/2, (depth/canvas.width)/2);
+	context.rect(x, y, depth/canvas.width, depth/canvas.height);
 	context.closePath();	
 	context.stroke();
 }
@@ -206,11 +205,11 @@ function display()
 
 			temp = math.multiply(P, temp);
 			
-			
+			/*
 			if(temp.subset(math.index([2])) < 0){
 				//objects[i].subset(math.index([2])) = 255;
 				temp.subset(math.index([2])) = 255;
-			}
+			}*/
 			
 			temp = math.divide(temp.subset(math.index([0, 1, 2])), temp.subset(math.index([3])));
 			
