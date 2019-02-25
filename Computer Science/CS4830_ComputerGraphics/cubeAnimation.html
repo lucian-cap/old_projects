@@ -1,7 +1,7 @@
 
 <HTML>
 <meta charset="utf-8"/>
-<head><script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/560EA8F9-74BA-1840-833D-937F39692B76/main.js" charset="UTF-8"></script></head>
+<head></head>
 
 <body>
 
@@ -144,13 +144,14 @@ function rotateY( angle ) {
 init();
 var r;
 var cube, T, P;
+var i = 6;
 
 function init() {
 
 
 	//create perspective projection matrix
 	P = perspective(2);
-	T = translate(0, 0, 6);
+	T = translate(0, 0, i);
 
 
 	cube = new Array();

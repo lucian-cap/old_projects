@@ -1,12 +1,12 @@
 
 <HTML>
 <meta charset="utf-8"/>
-<head><script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/560EA8F9-74BA-1840-833D-937F39692B76/main.js" charset="UTF-8"></script></head>
+<head></head>
 
 <body>
 
 <canvas id="canvas" width="500" height="500" style="border: 1px solid black" backgroundcolor=#000000></canvas>
-<p>Focal length: 0.1 <input type="range" id="myslider" min="0.1" max="2" value="1" step=0.01 class="slider" id="myRange">2</p>
+<p>Focal length: 0.1 <input type="range" id="myslider" min="0.001" max="2" value="1" step=0.01 class="slider" id="myRange">2</p>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/3.18.0/math.min.js"></script>
 <script>
 "use strict"; 
@@ -55,7 +55,7 @@ applyWindowToViewportTransformation(-1,1,-1,1,true);
         context.translate( -left, -top );
     }  // end of applyWindowToViewportTransformation()
 
-function perspective ( f ) {
+function perspective ( fov , aspect, near, far) {
 
 	var result = new Array();
 	for(var i = 0;i<4; i++) 
@@ -63,6 +63,15 @@ function perspective ( f ) {
 	for(var i = 0; i<4; i++) for(var j = 0; j<4; j++) result[i][j] = 0;
 
 	// create simple perspective matrix here by populating result	
+	var f = 1/ (Math.tan( fov / 2 ));
+	var d = far - near;
+
+
+	result[0][0] = f/aspect;
+	result[1][1] = f;
+	result[2][2] = (-1* (near+far))/d;
+	result[2][3] = (2 * near * far) / d;
+	result[3][2] = -1;
 
 	var res = math.matrix(result)
 	return res ;
@@ -76,6 +85,12 @@ function rotateZ( angle ) {
 	for(var i = 0; i<4; i++) for(var j = 0; j<4; j++) result[i][j] = 0;
 	
 	// create rotation around Z axis 
+	result[0][0] = Math.cos(a);
+	result[0][1] = -Math.sin(a);
+	result[1][0] = Math.sin(a);
+	result[1][1] = Math.cos(a);
+	result[2][2] = 1;
+	result[3][3] = 1;
 
 	var res = math.matrix(result) // this uses mathjs 
 	return res ;
@@ -86,18 +101,23 @@ function rotateZ( angle ) {
 // create array of object positions
 init();
 var r;
-var objects, T;
+var objects, T, P, frame, gAngle, distance;
 
 function init() {
-
-
+	distance = 0;
+	frame = 9;
+	gAngle = 0;
 	//create perspective projection matrix
+	P = perspective(1, 1, 1, 255);
+	r = rotateZ(0);
 
 	//create objects
 	objects = new Array();
 	for(var i = 0; i<NRSTARS; i++) 
 	{
-		var location = math.matrix([(Math.random() * 2 - 1) * 40, (Math.random() * 2 - 1)*40, Math.random() * 255, 1]); // each location is a 4x1 vertex
+		var location = math.matrix([(Math.random() * 2 - 1), (Math.random() * 2 - 1), (-1 * (Math.random() * 255)), 1]); // each location is a 4x1 vertex
+		if(i ==0)
+			console.log(location.subset(math.index([2])));
 		objects.push(location);
 	}
 
@@ -106,6 +126,7 @@ function init() {
 
     document.getElementById('myslider').oninput = function() {
 		var newFocal = this.value; // TODO: implement logic that updates the projection matrix
+		P = perspective(newFocal, 1, 1, 255);
 	}
 
 	// start clock
@@ -126,8 +147,10 @@ function doKeyDown(evt) {
         var code = evt.keyCode;  // Numerical code for key that was pressed.
         switch (code) {
 		case 37:  // left arrow key
+			gAngle+=1;
 		    break;
 		case 39:  // right arrow key
+			gAngle-=1;
 		    break;
 		case 38:  // up arrow key
 		    break;
@@ -150,30 +173,78 @@ function setPixel(x, y, depth) {
 	
 	context.fillStyle = "#00000";
 	
-	var red = 255; //TODO: adjust red as a function of depth (closer stars are brighter) 
-
+	var red = 255 - (Math.abs(1-depth) * 255); //TODO: adjust red as a function of depth (closer stars are brighter) 
+	
 	context.beginPath();
 	context.strokeStyle = rgbToHex(red, 0, 0);
 	context.lineWidth = 0.004;
-	context.rect(x, y, 0.01, 0.01);
+	context.rect(x, y, (depth/canvas.width)/2, (depth/canvas.width)/2);
 	context.closePath();	
 	context.stroke();
 }
 
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////
+//Spoke/worked with Sean Passmore and Christian Gerhardt about the assignment and how to implement some of the logic. 
+//////////////////////////////////////////////////////////////////////////////////////////////////
 // game loop function 
 function display()
 {
-	
-	context.fillRect(-1,-1,2,2); // clear the viewport
+	frame++;
+	//distance++;
+	if(frame%10 == 0){
+		distance++;
+		context.fillRect(-1,-1,2,2); // clear the viewport
+		r = rotateZ(gAngle);
+		T = translate(0, 0, distance);
+		// for all stars (objects), apply rotation, perspective transformation, normalize by w and draw
+		// matrix multiplication to be done with Mathjs  (e.g.: p_prime = math.multiply(M, p), where M is a 4x4 matrix and p is a 4x1 vector
+		for(var i = 0; i < objects.length; i++){
+			var temp = objects[i];
+			temp = math.multiply(T, temp);
+			temp = math.multiply(r, temp);
 
-	// for all stars (objects), apply rotation, perspective transformation, normalize by w and draw
-	
-	// matrix multiplication to be done with Mathjs  (e.g.: p_prime = math.multiply(M, p), where M is a 4x4 matrix and p is a 4x1 vector
+			temp = math.multiply(P, temp);
+			
+			
+			if(temp.subset(math.index([2])) < 0){
+				//objects[i].subset(math.index([2])) = 255;
+				temp.subset(math.index([2])) = 255;
+			}
+			
+			temp = math.divide(temp.subset(math.index([0, 1, 2])), temp.subset(math.index([3])));
+			
+			setPixel(temp.subset(math.index([0])), temp.subset(math.index([1])), temp.subset(math.index([2])));
+			
+		}
+	}
 
+
+
+	
 
 	requestAnimationFrame(display);
+}
+
+function translate( tx, ty, tz ) {
+	var result = new Array();
+	for(var i = 0;i<4; i++) 
+		result[i] = new Array();
+	for(var i = 0; i<4; i++) for(var j = 0; j<4; j++) result[i][j] = 0;
+	
+	// create matrix here by populating result	
+	result [0][0] =  1;
+	result [1][1] =  1;
+	result [2][2] =  1;
+	result [3][3] =  1;
+
+	result [0][3] =  tx;
+	result [1][3] =  ty;
+	result [2][3] =  tz;
+
+
+	var res = math.matrix(result) // this uses mathjs 
+	return res ;
 }
 
 

@@ -155,7 +155,7 @@
 				if(snake[0][0] == food[i][0] && snake[0][1] == food[i][1]){
 					addToSnake();
 					food.splice(i, 1);
-					food.push(new Float32Array([Math.floor(Math.random() * 20) * 40, Math.floor(Math.random() * 20) * 20]));
+					food.push(new Float32Array([Math.floor(Math.random() * 40) * 20, Math.floor(Math.random() * 30) * 20]));
 					checkFood();
 					score += 10;
 					document.getElementById('score').innerHTML = score;
@@ -230,8 +230,8 @@
 	
 	//Fills the food array, once they've been added the checkFood function is called to ensure different places
 	function makeFood(){
-		food.push(new Float32Array([Math.floor(Math.random() * 20) * 40, Math.floor(Math.random() * 20) * 20]));
-		food.push(new Float32Array([Math.floor(Math.random() * 20) * 40, Math.floor(Math.random() * 20) * 20]));
+		food.push(new Float32Array([Math.floor(Math.random() * 40) * 20, Math.floor(Math.random() * 30) * 20]));
+		food.push(new Float32Array([Math.floor(Math.random() * 40) * 20, Math.floor(Math.random() * 30) * 20]));
 		checkFood();
 	}
 	
@@ -241,8 +241,8 @@
 		for(var i=0; i < food.length; i++){
 			for(var ix = i + 1; ix < food.length; ix++){
 				if(food[i][0] == food[ix][0] && food[i][1] == food[ix][1]){
-					food[ix][0] = Math.floor(Math.random() * 20) * 40;
-					food[ix][1] = Math.floor(Math.random() * 20) * 20;
+					food[ix][0] = Math.floor(Math.random() * 40) * 20;
+					food[ix][1] = Math.floor(Math.random() * 30) * 20;
 					checkFood();
 				}
 			}
