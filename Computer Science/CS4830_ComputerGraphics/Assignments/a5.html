@@ -6,7 +6,7 @@
 <body>
 
 <canvas id="canvas" width="500" height="500" style="border: 1px solid black" backgroundcolor=#000000></canvas>
-<p>Focal length: 0.1 <input type="range" id="myslider" min="0.001" max="2" value="1" step=0.01 class="slider" id="myRange">2</p>
+<p>Focal length: 0.1 <input type="range" id="myslider" min="0.001" max=".5" value=".25" step=0.01 class="slider" id="myRange">2</p>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/3.18.0/math.min.js"></script>
 <script>
 "use strict"; 
@@ -102,20 +102,21 @@ function rotateZ( angle ) {
 init();
 var r;
 var objects, T, P, frame, gAngle, distance;
+var count = 0;
 
 function init() {
 	distance = 0;
 	frame = 9;
 	gAngle = 0;
 	//create perspective projection matrix
-	P = perspective(45, 1, .001, 100);
+	P = perspective(.25, 1, .001, 255);
 	r = rotateZ(0);
 
 	//create objects
 	objects = new Array();
 	for(var i = 0; i<NRSTARS; i++) 
 	{
-		var location = math.matrix([(Math.random() * 2 - 1), (Math.random() * 2 - 1), (-1 * (Math.random() * 255)), 1]); // each location is a 4x1 vertex
+		var location = math.matrix([(Math.random() * 2 - 1), (Math.random() * 2 - 1), (1 * (Math.random() * 255)), 1]); // each location is a 4x1 vertex
 		
 		objects.push(location);
 	}
@@ -125,6 +126,7 @@ function init() {
 
     document.getElementById('myslider').oninput = function() {
 		var newFocal = this.value; // TODO: implement logic that updates the projection matrix
+		console.log(newFocal);
 		P = perspective(newFocal, 1, .001, 100);
 	}
 
@@ -172,12 +174,12 @@ function setPixel(x, y, depth) {
 	
 	context.fillStyle = "#00000";
 	
-	var red = 255 - (Math.abs(1-depth) * 255); //TODO: adjust red as a function of depth (closer stars are brighter) 
+	var red = depth * 255; //TODO: adjust red as a function of depth (closer stars are brighter) 
 	
 	context.beginPath();
 	context.strokeStyle = rgbToHex(red, 0, 0);
 	context.lineWidth = 0.004;
-	context.rect(x, y, depth/canvas.width, depth/canvas.height);
+	context.rect(x, y, ((Math.abs(1-depth)*canvas.width)), (Math.abs(1-depth)*canvas.height));
 	context.closePath();	
 	context.stroke();
 }
@@ -192,7 +194,7 @@ function display()
 	frame++;
 	//distance++;
 	if(frame%10 == 0){
-		distance++;
+		distance--;
 		context.fillRect(-1,-1,2,2); // clear the viewport
 		r = rotateZ(gAngle);
 		T = translate(0, 0, distance);
@@ -201,16 +203,27 @@ function display()
 		for(var i = 0; i < objects.length; i++){
 			var temp = objects[i];
 			temp = math.multiply(T, temp);
+			
 			temp = math.multiply(r, temp);
 
 			temp = math.multiply(P, temp);
 			
-			/*
-			if(temp.subset(math.index([2])) < 0){
-				//objects[i].subset(math.index([2])) = 255;
-				temp.subset(math.index([2])) = 255;
-			}*/
 			
+			//if(i == 0)
+			//	console.log(temp.subset(math.index([2])));
+
+			if(temp.subset(math.index([2])) > 0){
+				count++;
+				objects[i].subset(math.index([0, 1, 2, 3]), [(Math.random() * 2 - 1), (Math.random() * 2 - 1), (1 * (Math.random() * 255)), 1]);
+				temp = objects[i];
+				temp = math.multiply(T, temp);
+			
+				temp = math.multiply(r, temp);
+
+				temp = math.multiply(P, temp);
+				//console.log(count);
+				
+			}
 			temp = math.divide(temp.subset(math.index([0, 1, 2])), temp.subset(math.index([3])));
 			
 			setPixel(temp.subset(math.index([0])), temp.subset(math.index([1])), temp.subset(math.index([2])));
