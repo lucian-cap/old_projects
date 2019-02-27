@@ -8,7 +8,7 @@ public class Thread_Runnable{
 	Thread t1 = new Thread(s);
 	Thread t2 = new Thread(i);
 	t1.start();		
-   t2.start();
+  	t2.start();
 	}
 }
 
