@@ -60,18 +60,23 @@ public class Multithread{
                 numsCol[i][ix] = listTemp.get(i).get(ix);
             }
         }
-
+    
+        ArrayList<Thread> tTotal = new ArrayList<>();
 
         System.out.println("\n\n");
         for(int i = 0; i < nums.length; i++){
             GetSum g = new GetSum(nums[i], "row", i);
             Thread t1 = new Thread(g);
-            t1.start();
+            tTotal.add(t1);
         }
         for(int i = 0; i < numsCol.length; i++){
             GetSum g = new GetSum(numsCol[i], "column", i);
             Thread t1 = new Thread(g);
-            t1.start();
+            tTotal.add(t1);
+        }
+
+        for(int i = 0; i < tTotal.size(); i++){
+            tTotal.get(i).start();
         }
 
             
