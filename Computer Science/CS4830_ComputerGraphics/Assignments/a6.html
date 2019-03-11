@@ -1,151 +1,200 @@
-<html>
-<head><title>Treasure Hunt</title><script src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/3.18.0/math.min.js"></script>
-</head>
+
+	<HTML>
+<meta charset="utf-8"/>
+<head><script src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/3.18.0/math.min.js"></script></head>
+
 <body>
 
-    <canvas id="canvas" width=600 height=600 style="border: 1px solid black"></canvas>
-    <img id="house" src="house.png" style="display:none" onload="init()"></img>
-    <script>
-        
-        var canvas = document.getElementById("canvas");
-        var context = canvas.getContext("2d");
-        var angle = 0;
-        var distance = 0;
-        var numHouses = 1;
-        var frame = 0;
-        var locations = new Array();
-        var house;
+<canvas id="canvas" width="500" height="500" style="border: 1px solid black"></canvas>
+<img id='house' src='house.png' hidden=true>
+<img id='treasure' src='treasure.png' hidden=true>
+<p id='output'>If you have trouble finding the treasure, use the console messages to guess where to look. An x between -1 and 1 is where you need to start, then try to get z between 3.25 and 3.5 </p>
+
+<script>
+
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext("2d");
+var NUM_OF_HOUSES = 100;
+var neighborhood = [];
+var image, allLoaded = false;
+var T;
+var image2;
+var hasWon = false;
 
 
-        applyWindowToViewportTransformation(-1,1,-1,1,true);
-        /**	Textbook function
-        *
-        * Sets up a transformation in the graphics context so that the canvas will
-        * show x-values in the range from left to right, and y-values in the range
-        * from bottom to top.  If preserveAspect is true, then one of the ranges
-        * will be increased, if necessary, to account for the aspect ratio of the
-        * canvas.  This function sets the global variable pixelsize to be the
-        * size of a pixel in the new coordinate system.  (If preseverAspect is
-        * true, pixelSize is the maximum of its horizontal and vertical sizes.)
-        */
-        function applyWindowToViewportTransformation(left,right,bottom,top,preserveAspect) {
-            var displayAspect, windowAspect;
-            var excess;
-            if (preserveAspect) {
-                // Adjust the limits to match the aspect ratio of the drawing area.
-                displayAspect = Math.abs(canvas.height / canvas.width);
-                windowAspect = Math.abs(( top-bottom ) / ( right-left ));
-                if (displayAspect > windowAspect) {
-                    // Expand the viewport vertically.
-                    excess = (top-bottom) * (displayAspect/windowAspect - 1)
-                    top = top + excess/2
-                    bottom = bottom - excess/2
-                }
-                else if (displayAspect < windowAspect) {
-                    // Expand the viewport vertically.
-                    excess = (right-left) * (windowAspect/displayAspect - 1)
-                    right = right + excess/2
-                    left = left - excess/2	
-                }
-            }
-            context.scale( canvas.width / (right-left), canvas.height / (bottom-top) )
-            context.translate( -left, -top );
-        }  // end of applyWindowToViewportTransformation()
+image2 = document.getElementById("treasure");
+        image2.onload = function imageLoaded(){
+            neighborhood.push(new Float64Array([Math.random() * 18, 0, Math.random() * .75]));
+        };
+
+init();
 
 
 
 
+function init() {
+	canvas = document.getElementById("canvas");
 
 
-
+	//document.getElementById("output").innerHTML = 'loading image';
+	//image = new Image();   // using optional size for image
+	image = document.getElementById("house");	
+	image.onload = function imageLoaded() {
         
 
-        function init(){
-            context.drawImage(document.getElementById("house"), 0, 0, 100, 100);
-            document.addEventListener("keydown", doKeyDown, false);
-            house = document.getElementById("house");
-            for(var i = 0; i < numHouses; i++){
-                var location = math.matrix([(Math.random()*2 - 1), (Math.random()*2 - 1), (Math.random()*255), 1]);
-            
-                locations.push(location);
-            }
+		// move to the middle of where we want to draw our image
+		context.translate(canvas.width/2, canvas.height/2);
 
+		// scale up both dimensions by a factor of 2 
+		context.scale(canvas.width/2, canvas.height/2);
 
-            requestAnimationFrame(display);
+        document.addEventListener("keydown", doKeyDown, false);
+
+        for(var i = 0; i < NUM_OF_HOUSES; i++){
+            neighborhood.push(new Float64Array([Math.random() * 18, 0, Math.random() * .75]));
+            //neighborhood.push(new Float64Array([0, 0, 1]));
         }
+        
+		// draw it up and to the left by half the width
+		// and height of the image 
+
+        displayScene();
+	}
+    
+}
 
 
-        function doKeyDown(evt){
-            var code = evt.keyCode;
-            switch(code){
-                case 37: //left arrow key
-                    angle+=1;
-                    break;
-                case 39: //right arrow key
-                    angle-=1;
-                    break;
-                case 38: //up arrow key
-                    distance+=1;
-                    break;
-                case 40: //down arrow key
-                    distance-=1;
-                    break;
-                default:
-                    break;
-            }
+function displayScene(){
+    context.fillStyle = "#FFFFFF";
+    context.fillRect(-1, -1, 2, 2);
+
+    //draw background
+    context.fillStyle = "green";
+    context.fillRect(-1, 0, 2, 1);
+
+    context.fillStyle = "blue";
+    context.fillRect(-1, -1, 2, 1);
+
+    neighborhood.sort(function(a, b){
+        return a[2] - b[2];
+    });
+
+    for(var i = 0; i < neighborhood.length; i++){
+        if(hasWon){
+            showWinScreen();
         }
-
-        function display(){
-            frame++;
-            if(frame%10 == 0){
-                context.fillStyle = "#ffffff";
-                context.fillRect(-1,-1,2,2);
-                var T = translate(distance, 0, distance);
-
-                for(var i = 0; i < locations.length; i++){
-                    var temp = locations[i];
-                    temp = math.multiply(T, temp);
-                    drawHouse(temp);
-                    console.log(temp.subset(math.index([1])));
+        else{
+            if(i == 0){
+                customDraw(image2, neighborhood[i][0], neighborhood[i][2]);
+                console.log("x = " + neighborhood[i][0]);
+                console.log("z = " + neighborhood[i][2]);
+                if(neighborhood[0][2] < 3.5 && neighborhood[0][2] > 3.25 && (neighborhood[0][0] >= -1 && neighborhood[0][0] <= 1)){
+                    hasWon = true;
                 }
             }
-            requestAnimationFrame(display);
+            else{
+                customDraw(image, neighborhood[i][0], neighborhood[i][2]);
+            }
         }
+    }
+}
 
-        function drawHouse(temp){
-            context.drawImage(house, temp.subset(math.index([0])), temp.subset(math.index([1])), .5, .5);
-            
+function customDraw(image, x, scale){
+    if(scale >= 0 && scale <= 3.5){
+    /*
+    var displayWidth = 2 * scale;
+    var displayHeight = 2* scale;
+    context.drawImage(image, x - displayWidth / 2, 0 - displayHeight / 2, displayWidth, displayHeight);
+    */
+    var displayWidth = .5 *  scale;
+    var displayHeight = .5 * scale;
+    context.drawImage(image, x - displayWidth / 2, 0 - displayHeight / 2, displayWidth, displayHeight);
+    
+    }
+}
+
+function doKeyDown(evt){
+    var code = evt.keyCode;
+    switch(code){
+        case 37: //left arrow
+            for(var i = 0; i < neighborhood.length; i++){
+                neighborhood[i][0] += .1;
+                if(neighborhood[i][0] > 18){
+                    neighborhood[i][0] = -18;
+                }
+            }
+            if(!hasWon){
+                displayScene();}
+            break;
+        case 39: //right arrow
+            for(var i = 0; i < neighborhood.length; i++){
+                neighborhood[i][0] -= .1;
+                if(neighborhood[i][0] < -18){
+                    neighborhood[i][0] = 18;
+                }
+            }
+            if(!hasWon){
+                displayScene();}
+            break;
+        case 38: //up arrow
+            for(var i = 0; i < neighborhood.length; i++){
+                if(neighborhood[i][2] > 1){
+                    neighborhood[i][2] += .03;
+                }
+                else if(neighborhood[i][2] > 2){
+                    neighborhood[i][2] += .05;
+                }
+                else{
+                neighborhood[i][2] += .01;
+                }
+            }
+            if(!hasWon){
+                displayScene();}
+            break;
+        case 40: //down arrow
+            for(var i = 0; i < neighborhood.length; i++){
+                if(neighborhood[i][2] > 1){
+                    neighborhood[i][2] -= .03;
+                }
+                else if(neighborhood[i][2] > 2){
+                    neighborhood[i][2] -= .05;
+                }
+                else{
+                neighborhood[i][2] -= .01;
+                }
+            }
+            if(!hasWon){
+                displayScene();}
+            break;
         }
+}
 
-        function translate( tx, ty, tz ) {
-            var result = new Array();
-            for(var i = 0;i<4; i++) 
-                result[i] = new Array();
-            for(var i = 0; i<4; i++) for(var j = 0; j<4; j++) result[i][j] = 0;
-            
-            // create matrix here by populating result	
-            result [0][0] =  1;
-            result [1][1] =  1;
-            result [2][2] =  1;
-            result [3][3] =  1;
+function showWinScreen(){
 
-            result [0][3] =  tx;
-            result [1][3] =  ty;
-            result [2][3] =  tz;
+    context.fillStyle = "#FFFFFF";
+    context.fillRect(-1, -1, 2, 2);
+
+     //draw background
+    context.fillStyle = "green";
+    context.fillRect(-1, 0, 2, 1);
+
+    context.fillStyle = "blue";
+    context.fillRect(-1, -1, 2, 1);
+
+    customDraw(image2, neighborhood[0][0], neighborhood[0][2]);
+
+    context.font = "1px serif";
+    context.fillStyle = "black";
+    context.fillText("You", -1, 0); 
+    context.fillText("Win!", -1, 1);
+}
+ 
+
+</script>
 
 
-            var res = math.matrix(result) // this uses mathjs 
-            return res ;
-        }
-
-
-
-
-    </script>
 
 
 </body>
-
-
 
 </html>
