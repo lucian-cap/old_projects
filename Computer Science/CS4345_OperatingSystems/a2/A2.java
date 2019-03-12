@@ -18,6 +18,10 @@ public class A2{
         temp.add(new Process(tempId));
         temp.get(0).getProcessInfo();
         temp.get(0).SJF();
+        System.out.println("\n\n\n");
+        temp.get(0).priority();
+        System.out.println("\n\n\n");
+
     }
 
 }
@@ -91,7 +95,7 @@ class Process{
             }
         }
         int totalWait = 0;
-        for(Process var : temp){totalWait +=var.getWaitTime();System.out.println(totalWait);}
+        for(Process var : temp){totalWait +=var.getWaitTime();}
 
 
         System.out.print("\tProcess ID\t|\tPriority\t|\tBurst-length\t|\tScheduling algorithm\t|\tTotal waiting time\n");
@@ -99,6 +103,30 @@ class Process{
             System.out.printf("\t%5d\t\t|\t%5d\t\t|\t%5d\t\t|\t%20s\t|\t%5d\t\n", allProcesses.get(i).getId(), allProcesses.get(i).getPriority(), allProcesses.get(i).getLength(), "Non-preemptive SJF", allProcesses.get(i).getWaitTime());
         }
         System.out.println("\n\nAverage wait time for non-preemptive SJF is: " + (((double)totalWait)/temp.size()));
+
+    }
+
+    public void priority(){
+        ArrayList<Process> temp = allProcesses;
+
+        temp.sort((a, b) -> a.getPriority() - b.getPriority());
+        
+        for(Process var : temp){var.waitTime = 0;}
+
+        for(int i  = 0; i < temp.size(); i++){
+            for(int ix = i+1; ix < temp.size(); ix++){
+                temp.get(ix).wait(temp.get(i).getLength());
+            }
+        }
+        int totalWait = 0;
+        for(Process var : temp){totalWait +=var.getWaitTime();}
+
+
+        System.out.print("\tProcess ID\t|\tPriority\t|\tBurst-length\t|\tScheduling algorithm\t|\tTotal waiting time\n");
+        for(int i = 0; i < allProcesses.size(); i++){
+            System.out.printf("\t%5d\t\t|\t%5d\t\t|\t%5d\t\t|\t%20s\t|\t%5d\t\n", allProcesses.get(i).getId(), allProcesses.get(i).getPriority(), allProcesses.get(i).getLength(), "Non-preemptive Priority", allProcesses.get(i).getWaitTime());
+        }
+        System.out.println("\n\nAverage wait time for non-preemptive Priority is: " + (((double)totalWait)/temp.size()));
 
     }
 
