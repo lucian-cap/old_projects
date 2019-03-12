@@ -1,0 +1,287 @@
+
+<!DOCTYPE html>
+<!-- saved from url=(0082)https://mypages.valdosta.edu/rpmihail/teaching/S19/CS4830/samples/basic_webgl.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>RGB Triangle in WebGL</title>
+
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+attribute  vec2 vTextureCoord;
+varying vec2 fTextureCoord;
+
+uniform float focal;
+
+void main()
+{
+    gl_PointSize = 1.0;
+
+    mat4 perspective = mat4(1, 0, 0, 0,    0, 1, 0, 0,    0, 0, 1, 0,    0, 0, 1.0, 1);
+
+    gl_Position = vPosition * perspective; // pass-through 
+    fTextureCoord = vTextureCoord;
+
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+varying  vec2 fTextureCoord;
+uniform sampler2D texture;
+
+
+void main()
+{	
+    gl_FragColor = texture2D(texture, fTextureCoord) + vec4(0.1, 0.0, 0.0, 1.0); // pass-through 
+}
+</script>
+
+
+
+
+
+
+
+<script>
+"use strict";
+
+
+
+
+var texture, image;
+
+function initTexture() {
+    texture = gl.createTexture();
+    gl.bindTexture( gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	
+	texture.image = new Image();
+	texture.image.src = "trip.jpg";
+	texture.image.onload = function() { 
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	}
+}
+
+
+
+function initShaders( gl, vertexShaderId, fragmentShaderId )
+{
+    var vertShdr;
+    var fragShdr;
+
+    var vertElem = document.getElementById( vertexShaderId );
+    if ( !vertElem ) { 
+        alert( "Unable to load vertex shader " + vertexShaderId );
+        return -1;
+    }
+    else {
+        vertShdr = gl.createShader( gl.VERTEX_SHADER );
+        gl.shaderSource( vertShdr, vertElem.text );
+        gl.compileShader( vertShdr );
+        if ( !gl.getShaderParameter(vertShdr, gl.COMPILE_STATUS) ) {
+            var msg = "Vertex shader failed to compile.  The error log is:"
+        	+ "<pre>" + gl.getShaderInfoLog( vertShdr ) + "</pre>";
+            alert( msg );
+            return -1;
+        }
+    }
+
+    var fragElem = document.getElementById( fragmentShaderId );
+    if ( !fragElem ) { 
+        alert( "Unable to load vertex shader " + fragmentShaderId );
+        return -1;
+    }
+    else {
+        fragShdr = gl.createShader( gl.FRAGMENT_SHADER );
+        gl.shaderSource( fragShdr, fragElem.text );
+        gl.compileShader( fragShdr );
+        if ( !gl.getShaderParameter(fragShdr, gl.COMPILE_STATUS) ) {
+            var msg = "Fragment shader failed to compile.  The error log is:"
+        	+ "<pre>" + gl.getShaderInfoLog( fragShdr ) + "</pre>";
+            alert( msg );
+            return -1;
+        }
+    }
+
+    var program = gl.createProgram();
+    gl.attachShader( program, vertShdr );
+    gl.attachShader( program, fragShdr );
+    gl.linkProgram( program );
+    
+    if ( !gl.getProgramParameter(program, gl.LINK_STATUS) ) {
+        var msg = "Shader program failed to link.  The error log is:"
+            + "<pre>" + gl.getProgramInfoLog( program ) + "</pre>";
+        alert( msg );
+        return -1;
+    }
+
+    return program;
+}
+
+
+
+
+
+
+
+var gl;  // The WebGL graphics context.
+
+var attributeCoords;  // Location of the attribute named "a_coords".
+var bufferCoords;     // A vertex buffer object to hold the values for coords.
+
+var attributeTex;   // Location of the attribute named "a_color".
+var bufferTex;     // A vertex buffer object to hold the values for color.
+
+var focalLocation;
+
+var prog;
+
+
+/**
+ *  Draws the content of the canvas, in this case, the RGB color triangle.
+ */
+function draw() { 
+
+    gl.clearColor(0,0,0,1);  // specify the color to be used for clearing
+    gl.clear(gl.COLOR_BUFFER_BIT);  // clear the canvas (to black)
+
+    //focalLocation = gl.getUniformLocation(prog, "focal");
+    var focalLength = 1.0;
+    gl.uniform1f(focalLocation, focalLength);
+
+    /* Set up values for the "coords" attribute */
+
+    var coords = new Float32Array( [  -0.9, 0.9, 0.5, 1.0, -0.9,-0.8,0.5,1.0,     0.9,-0.8, 0.5, 1.0     ] );
+   
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferCoords);
+    gl.bufferData(gl.ARRAY_BUFFER, coords, gl.STREAM_DRAW);
+    gl.vertexAttribPointer(attributeCoords, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attributeCoords); 
+   
+    /* Set up values for the "color" attribute */
+   
+    var texCoords = new Float32Array( [ 0,0, 1,0, 1,1 ] );
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferTex);
+    gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STREAM_DRAW);
+    gl.vertexAttribPointer(attributeTex, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attributeTex); 
+    
+    /* Draw the triangle. */
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+	requestAnimationFrame(draw);
+
+}
+
+/**
+ * Creates a program for use in the WebGL context gl, and returns the
+ * identifier for that program.  If an error occurs while compiling or
+ * linking the program, an exception of type String is thrown.  The error
+ * string contains the compilation or linking error.  If no error occurs,
+ * the program identifier is the return value of the function.
+ */
+function createProgram(gl, vertexShaderSource, fragmentShaderSource) {
+   var vsh = gl.createShader( gl.VERTEX_SHADER );
+   gl.shaderSource( vsh, vertexShaderSource );
+   gl.compileShader( vsh );
+   if ( ! gl.getShaderParameter(vsh, gl.COMPILE_STATUS) ) {
+      throw "Error in vertex shader:  " + gl.getShaderInfoLog(vsh);
+   }
+   var fsh = gl.createShader( gl.FRAGMENT_SHADER );
+   gl.shaderSource( fsh, fragmentShaderSource );
+   gl.compileShader( fsh );
+   if ( ! gl.getShaderParameter(fsh, gl.COMPILE_STATUS) ) {
+      throw "Error in fragment shader:  " + gl.getShaderInfoLog(fsh);
+   }
+   var prog = gl.createProgram();
+   gl.attachShader( prog, vsh );
+   gl.attachShader( prog, fsh );
+   gl.linkProgram( prog );
+   if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS) ) {
+      throw "Link error in program:  " + gl.getProgramInfoLog(prog);
+   }
+   return prog;
+}
+
+/**
+ * Initialize the WebGL graphics context
+ */
+function initGL() {
+
+
+
+    //var prog = createProgram( gl, vertexShaderSource, fragmentShaderSource );
+    prog = initShaders( gl, "vertex-shader", "fragment-shader");
+
+
+   
+    gl.useProgram(prog);
+
+
+    focalLocation = gl.getUniformLocation(prog, "focal");
+
+    attributeCoords = gl.getAttribLocation(prog, "vPosition");
+    bufferCoords = gl.createBuffer();
+
+
+    attributeTex = gl.getAttribLocation(prog, "vTextureCoord");
+    bufferTex = gl.createBuffer();
+
+    initTexture();
+
+}
+
+/**
+ * Initialize the program.  This function is called after the page has been loaded.
+ */
+function init() {
+    try {
+        var canvas = document.getElementById("webglcanvas");
+        var options = {  // no need for alpha channel or depth buffer in this program
+            alpha: false,
+            depth: false
+        };
+        gl = canvas.getContext("webgl", options) || 
+                         canvas.getContext("experimental-webgl", options);
+        if ( ! gl ) {
+            throw "Browser does not support WebGL";
+        }
+    }
+    catch (e) {
+        document.getElementById("canvas-holder").innerHTML =
+            "<p>Sorry, could not get a WebGL graphics context.</p>";
+        return;
+    }
+    try {
+        initGL();  // initialize the WebGL graphics context
+    }
+    catch (e) {
+        document.getElementById("canvas-holder").innerHTML =
+            "<p>Sorry, could not initialize the WebGL graphics context:" + e + "</p>";
+        return;
+    }
+    draw();    // draw the image
+}
+
+</script>
+</head>
+<body onload="init()">
+
+<h2>The RGB Triangle in WebGL</h2>
+
+<noscript><p><b>Sorry, but this page requires JavaScript.</b></p></noscript>
+
+<div id="canvas-holder">
+<canvas id="webglcanvas" width="500" height="500"></canvas>
+</div>
+
+
+
+</body></html>
