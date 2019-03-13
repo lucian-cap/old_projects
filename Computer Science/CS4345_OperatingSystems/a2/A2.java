@@ -17,10 +17,12 @@ public class A2{
         }
         temp.add(new Process(tempId));
         temp.get(0).getProcessInfo();
+        System.out.println("\n\n\n");
         temp.get(0).SJF();
         System.out.println("\n\n\n");
         temp.get(0).priority();
         System.out.println("\n\n\n");
+        temp.get(0).roundRobin(20);
 
     }
 
@@ -127,6 +129,71 @@ class Process{
             System.out.printf("\t%5d\t\t|\t%5d\t\t|\t%5d\t\t|\t%20s\t|\t%5d\t\n", allProcesses.get(i).getId(), allProcesses.get(i).getPriority(), allProcesses.get(i).getLength(), "Non-preemptive Priority", allProcesses.get(i).getWaitTime());
         }
         System.out.println("\n\nAverage wait time for non-preemptive Priority is: " + (((double)totalWait)/temp.size()));
+
+    }
+
+    public void roundRobin(int len){
+        ArrayList<Process> temp = new ArrayList<>();
+        for(Process var : allProcesses){
+            temp.add(var);
+        }
+
+        for(Process var : temp){var.waitTime = 0;}
+        temp.sort((a, b) -> a.getId() - b.getId());
+
+        ArrayList<Integer> tempLen = new ArrayList<>();
+        for(Process var : allProcesses){
+            tempLen.add(var.getLength());
+        }
+       
+
+        while(temp.size() > 0){
+            for(int i = 0; i < temp.size(); i++){
+                int change = 0;
+                if(temp.get(i).getLength() - len >= 0){
+                    change = len;
+                }
+                else{  
+                    change = temp.get(i).getLength();
+                }
+                for(int ix = 0; ix < temp.size(); ix++){
+                    if(ix == i){
+                        temp.get(ix).length -= change;
+                    }
+                    else{    
+                        temp.get(ix).wait(change);
+                    }
+                }//close for
+            }//close for
+
+
+            for(int i = 0; i < temp.size(); i++){
+                if(temp.get(i).getLength() == 0){
+                    temp.remove(temp.get(i));
+                }//close if
+            }//close for
+
+
+        }//close while
+
+        for(Process var : allProcesses){
+            temp.add(var);}
+
+        temp.sort((a, b) -> a.getId() - b.getId());
+        for(int i = 0; i < tempLen.size(); i++){
+            temp.get(i).length = tempLen.get(i);
+        }
+
+        int totalWait = 0;
+        for(Process var : temp){totalWait +=var.getWaitTime();}
+
+
+        System.out.print("\tProcess ID\t|\tPriority\t|\tBurst-length\t|\tScheduling algorithm\t|\tTotal waiting time\n");
+        for(int i = 0; i < allProcesses.size(); i++){
+            System.out.printf("\t%5d\t\t|\t%5d\t\t|\t%5d\t\t|\t%20s\t|\t%5d\t\n", allProcesses.get(i).getId(), allProcesses.get(i).getPriority(), allProcesses.get(i).getLength(), "Round Robin", allProcesses.get(i).getWaitTime());
+        }
+        System.out.println("\n\nAverage wait time for non-preemptive Priority is: " + (((double)totalWait)/temp.size()));
+
 
     }
 
