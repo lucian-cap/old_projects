@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- saved from url=(0079)https://mypages.valdosta.edu/rpmihail/teaching/S19/CS4830/samples/parallax.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <title>Parallax starter code</title>
@@ -36,8 +35,14 @@ var bufferColor;     // A vertex buffer object to hold the values for color.
  *  Draws the content of the canvas, in this case, the RGB color triangle.
  */
 
-var x = 0;
+ var yValues = [];
 
+function fillYCoords(){
+    yValues[0] = 0;
+    for(var ix = 1; ix < 300; ix++){
+        yValues.push(yValues[ix -1] + (((Math.random() * 2) -1) * .1));
+    }
+}
 
 
 
@@ -52,7 +57,8 @@ function drawSlice(sliceSize, depth, xOffset) {
 	
 	for(var ix = 0; ix<sliceSize; ix++) {
 		positions.push(ix / scale - 1.0 - xOffset);
-		positions.push(-0.7 + Math.sin(ix/10.0 - ((depth*2) * 15.0)) / (5.0) + depth*2);
+		//positions.push(-0.7 + Math.sin(ix/10.0 - ((depth*2) * 15.0)) / (5.0) + depth*2);
+        positions.push(yValues[ix]+ (-.35 + sliceZ));
 		positions.push(sliceZ);
 	}
 	//adding B's
@@ -114,7 +120,7 @@ function drawSlice(sliceSize, depth, xOffset) {
 
 
 var slice1Xoffset = 0; 
-var slice2Xoffset = 0; 
+var slice2Xoffset = -5; 
 
 function draw() { 
 
@@ -125,17 +131,24 @@ function draw() {
     /* Set up values for the "coords" attribute */
 
 	slice1Xoffset += 0.02;
-	slice2Xoffset += 0.01;
+	slice2Xoffset += 0.02;
 	
-	if(slice1Xoffset>10)
-		slice1Xoffset = 0;
-	if(slice2Xoffset>10)
-		slice2Xoffset = 0;
+	if(slice1Xoffset>20)
+		slice1Xoffset = -1;
+	if(slice2Xoffset> 20)
+		slice2Xoffset = -1;
+
 
 	drawSlice(300, 0, slice1Xoffset);
- 	drawSlice(300, 0.1, slice2Xoffset);
+ 	drawSlice(300, 0.1, slice1Xoffset/1.5);
  	drawSlice(300, 0.2, slice1Xoffset/2);
  	drawSlice(300, 0.3, slice1Xoffset/3);
+    drawSlice(300, 0.4, slice1Xoffset/4);
+    drawSlice(300, 0, slice2Xoffset);
+ 	drawSlice(300, 0.1, slice2Xoffset/1.5);
+ 	drawSlice(300, 0.2, slice2Xoffset/2);
+ 	drawSlice(300, 0.3, slice2Xoffset/3);
+    drawSlice(300, 0.4, slice2Xoffset/4);
 	
     requestAnimationFrame(draw);
 
@@ -215,7 +228,7 @@ function init() {
             "<p>Sorry, could not initialize the WebGL graphics context:" + e + "</p>";
         return;
     }
-
+    fillYCoords();
     draw();    // draw the image
 }
 
