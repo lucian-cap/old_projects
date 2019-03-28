@@ -15,6 +15,7 @@ public class Server{
         this.port = nextPort;
         this.sock = new ServerSocket(port);
         nextPort++;
+        servers.add(this);
     }
 
     public String getName(){
