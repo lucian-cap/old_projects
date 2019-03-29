@@ -8,6 +8,7 @@ public class Server{
     private ServerSocket sock;
     private static int nextPort = 1;
     private static ArrayList<Server> servers = new ArrayList<>();
+    private static ArrayList<String> names = new ArrayList<>();
     private ArrayList<Client> users = new ArrayList<>();
 
     public Server(String name) throws IOException{
@@ -16,6 +17,7 @@ public class Server{
         this.sock = new ServerSocket(port);
         nextPort++;
         servers.add(this);
+        names.add(name);
     }
 
     public String getName(){
@@ -29,4 +31,13 @@ public class Server{
     public ServerSocket getSock(){
         return this.sock;
     }
+
+    public ArrayList<Server> getServers(){
+        return servers;
+    }
+
+    public ArrayList<String> getNames(){
+        return names;
+    }
+
 }

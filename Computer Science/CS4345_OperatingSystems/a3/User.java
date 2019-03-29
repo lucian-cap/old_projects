@@ -32,8 +32,8 @@ public class User {
             System.out.println(dataFromServer.readUTF());
             String command = in.nextLine();
 
-            while (!command.equals("/exit") && !command.equals("1") && !command.equals("2")){
-                System.out.println("Command not recognized, please enter either '/exit', '1', or '2'");
+            while (!command.equals("/exit") && !command.equals("1") && !command.equals("2") && !command.equals("3") ){
+                System.out.println("Command not recognized, please enter either '/exit', '1', or '2', or '3'");
                 command = in.nextLine();
             }
             if (command.equals("/exit")) {
@@ -45,6 +45,9 @@ public class User {
                     System.err.println(e);
                 }
             }
+
+            int newConnection = dataFromServer.readInt();
+            Socket newSock = new Socket("127.0.0.1", newConnection);
 
         } catch (Exception e) {
             System.err.println(e);
