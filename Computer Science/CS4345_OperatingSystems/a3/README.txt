@@ -1,0 +1,3 @@
+To run this chatroom project, if you are attempting to run it from the command line you must first compile the Server.java, ServerThread.java, User.java, and UserThread.java files using
+the javac command. Once this is done, or if you are using an IDE like jGrasp or Eclipse, simply run the Server class, then run the User class. Once you've done this, simply follow the
+prompts presented to you with the User file, as these prompts will get you either logged in or signed up, then into the chatroom to talk to, or whisper about, others.
