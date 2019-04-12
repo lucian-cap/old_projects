@@ -1,1 +1,1 @@
-Click on the canvas to begin tracking mouse movement/change. Click again to stop tracking the mouses movement. 
+Click on the canvas to begin tracking mouse movement/change. Click again to stop tracking the mouses movement. Must be opened with Firefox, unless the security on Google Chrome has been bypassed.
