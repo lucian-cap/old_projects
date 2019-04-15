@@ -1,4 +1,3 @@
-//Spoke with Sean, Christian, and Mickey about this assignment. 
 
 
 
@@ -12,6 +11,7 @@ var height = window.innerHeight;
 var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(width, height);
 renderer.shadowMap.enabled = true;
+
 
 
 //adds the actual canvas object to the html doc so the game
@@ -37,8 +37,8 @@ scene.add( plane );
 
 
 
-
-var cubeMaterial = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('skyscraper.jpg')});
+var cubeMaterialTemp = new THREE.TextureLoader().load('skyscraper.jpg');
+var cubeMaterial = new THREE.MeshLambertMaterial({ map: cubeMaterialTemp});
 var buildingCollection = [];
 
 
@@ -76,6 +76,9 @@ document.addEventListener('mousemove', handleMouseMove, false);
 document.addEventListener('keydown', doKeyDown, false);
 document.addEventListener('keyup', doKeyUp, false);
 document.addEventListener('mousedown', handleMouseDown, false);
+
+
+
 
 
 createBuildings();
@@ -147,6 +150,10 @@ function handleMouseMove(evt){
         oldMousePos.x = evt.clientX;
         oldMousePos.y = evt.clientY;
     }
+
+
+
+
 }
 
 
