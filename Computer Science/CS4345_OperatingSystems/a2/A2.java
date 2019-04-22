@@ -15,7 +15,11 @@ public class A2{
             System.out.println("I'm sorry, the ID you entered is already being used.\nPlease enter a new ID that isn't listed above: ");
             tempId = in.nextInt();
         }
-        temp.add(new Process(tempId));
+        System.out.println("Please enter your process's length: ");
+        int tempLen = in.nextInt();
+        System.out.println("Please enter your process's priority: ");
+        int tempPriority = in.nextInt();
+        temp.add(new Process(tempId, tempLen, tempPriority));
         temp.get(0).getProcessInfo();
         System.out.println("\n\n\n");
         temp.get(0).SJF();
@@ -49,12 +53,12 @@ class Process{
         allProcesses.add(this);
     }
 
-    Process(int newId){
+    Process(int newId, int newLen, int newPriority){
         Random rand = new Random();
         this.id = newId;
         identifiers.remove(identifiers.indexOf(newId));
-        length = rand.nextInt(81) + 20;
-        priority = rand.nextInt(10) + 1;
+        this.length = newLen;
+        this.priority = newPriority;
         allProcesses.add(this);
     }
 

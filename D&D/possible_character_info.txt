@@ -37,4 +37,42 @@ Sorcerer:
 		Charisma
 		Spell save DC: 8 + proficiency bonus + charisma modifier
 		Spell attack modifier: your proficiency bonus + charisma modifier
+	Wild Magic Additions
+	
+Warlock:
+	Hit Points: 1d8 per warlock level
+		Hit Points @ 1st Level: 8 + con modifier
+		HP afterwards: 1d8 (or 5) + con modifier
+	Proficiencies:
+		Armor: Light Armor
+		Weapons: Simple weapons
+		Saving throws: Wisdom, Charisma
+		Skills: Arcana, Deception, History, Intimidation, Investigation, Nature, Religion
+	Equipment:
+		Light crossbow + 20 bolts or any simple weapon
+		Component pouch or arcane pouch
+		Scholars pack or dungeoneers pack
+		Leather armor, any simple weapon, and 2 daggars
+	Patrol Abilities
+
+Wizard:
+	Hit Points: 1d6 per wizard level
+		HP @ 1st level: 6 + con modifier
+		HP @ higher level: 1d6 (or 4) + con modifier
+	Proficiencies:
+		Weapons: Daggers, darts, slings, quarterstaffs, light crossbows
+		Saving Throws: Intelligence, Wisdom
+		Skills: 2 from Arcana, History, Insight, Investigation, Medicine, and Religion
+	Equipment:
+		quarterstaff or dagger
+		component pouch or arcane pouch
+		scholars pack or explorers pack
+		a spellbook
+	Spellcasting:
+		Have a spellbook that contains known spells
+		@ level 1 know 3 cantrips and 6 spells
+	Spellcasting ability:
+		Spell save dc = 8 + proficiency bonus + intelligence modifier
+		Spell attack modifier = proficiency bonus + intelligence modifier
 		
+	
