@@ -1,2 +1,0 @@
-Open the test2.html document in Firefox to experience the full functionality of this game, or Google Chrome when the security has been disabled. 
-I would also recommend being careful with the sound, your plane can be a little loud!

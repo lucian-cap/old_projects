@@ -1,1 +1,0 @@
-Click on the canvas to begin tracking mouse movement/change. Click again to stop tracking the mouses movement. 
