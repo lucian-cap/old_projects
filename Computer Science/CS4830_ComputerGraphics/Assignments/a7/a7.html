@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Parallax starter code</title>
+
+<script>
+
+"use strict";
+
+var vertexShaderSource =
+       "attribute vec3 a_coords;\n" +
+       "attribute vec3 a_color;\n" +
+       "varying vec3 v_color;\n" +
+       "void main() {\n" +
+       "   gl_Position = vec4(a_coords, 1.0);\n" +
+       "   v_color = a_color;\n" +
+       "}\n";
+
+var fragmentShaderSource =
+       "precision mediump float;\n" +
+       "varying vec3 v_color;\n" +
+       "void main() {\n" +
+       "   gl_FragColor = vec4(v_color, 1.0);\n" +
+       "}\n";
+
+var gl;  // The WebGL graphics context.
+
+var attributeCoords;  // Location of the attribute named "a_coords".
+var bufferCoords;     // A vertex buffer object to hold the values for coords.
+
+var attributeColor;   // Location of the attribute named "a_color".
+var bufferColor;     // A vertex buffer object to hold the values for color.
+
+/**
+ *  Draws the content of the canvas, in this case, the RGB color triangle.
+ */
+
+ var yValues = [];
+
+function fillYCoords(){
+    yValues[0] = 0;
+    for(var ix = 1; ix < 300; ix++){
+        yValues.push(yValues[ix -1] + (((Math.random() * 2) -1) * .1));
+    }
+}
+
+
+
+
+function drawSlice(sliceSize, depth, xOffset) {
+
+
+	var positions = [];
+	var sliceZ = depth;
+	// adding P's
+	var scale = ((sliceSize-1) / 2) / 10.0;
+	
+	for(var ix = 0; ix<sliceSize; ix++) {
+		positions.push(ix / scale - 1.0 - xOffset);
+		//positions.push(-0.7 + Math.sin(ix/10.0 - ((depth*2) * 15.0)) / (5.0) + depth*2);
+        positions.push(yValues[ix]+ (-.35 + sliceZ));
+		positions.push(sliceZ);
+	}
+	//adding B's
+	for(var ix = 0; ix<sliceSize; ix++) {
+		positions.push(ix / scale - 1.0 - xOffset);
+		positions.push(-1.0);
+		positions.push(sliceZ);
+	}
+	
+    var coords = new Float32Array( positions );
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferCoords);
+    gl.bufferData(gl.ARRAY_BUFFER, coords, gl.STREAM_DRAW);
+    gl.vertexAttribPointer(attributeCoords, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attributeCoords); 
+   
+    /* Set up values for the "color" attribute */
+   
+    var color = new Float32Array( sliceSize * 2 * 3  );
+	for(var ix = 0; ix<sliceSize * 2 * 3; ix+=3)
+		color[ix] = 1.0 - (depth*2);
+
+
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferColor);
+    gl.bufferData(gl.ARRAY_BUFFER, color, gl.STREAM_DRAW);
+    gl.vertexAttribPointer(attributeColor, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attributeColor); 
+    
+
+    // Set up values for the index attribute
+    var elementBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, elementBuffer );
+
+	
+	var nrTriangles = sliceSize * 2 - 2;
+	var nrIndices = nrTriangles * 3;
+	
+    var data = new Uint16Array( nrIndices );
+
+	for(var ix = 0; ix<sliceSize-1; ix++){
+	
+		data[ix*6]   = ix; 
+		data[ix*6+1] = ix+1;
+		data[ix*6+2] = ix+sliceSize;
+		
+		data[ix*6+3] = ix+1;
+		data[ix*6+4] = ix+sliceSize+1;
+		data[ix*6+5] = ix+sliceSize;
+	
+	}
+
+    gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, data, gl.STREAM_DRAW );
+
+    /* Draw the triangles. */
+    gl.enable(gl.DEPTH_TEST);
+    gl.drawElements(gl.TRIANGLES, nrTriangles * 3, gl.UNSIGNED_SHORT, 0);
+}
+
+
+var slice1Xoffset = 0; 
+var slice2Xoffset = -5; 
+
+function draw() { 
+
+	
+    gl.clearColor(0,0,0,1);  // specify the color to be used for clearing
+    gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);  // clear the canvas (to black)
+
+    /* Set up values for the "coords" attribute */
+
+	slice1Xoffset += 0.02;
+	slice2Xoffset += 0.02;
+	
+	if(slice1Xoffset>20)
+		slice1Xoffset = -1;
+	if(slice2Xoffset> 20)
+		slice2Xoffset = -1;
+
+
+	drawSlice(300, 0, slice1Xoffset);
+ 	drawSlice(300, 0.1, slice1Xoffset/1.5);
+ 	drawSlice(300, 0.2, slice1Xoffset/2);
+ 	drawSlice(300, 0.3, slice1Xoffset/3);
+    drawSlice(300, 0.4, slice1Xoffset/4);
+    drawSlice(300, 0, slice2Xoffset);
+ 	drawSlice(300, 0.1, slice2Xoffset/1.5);
+ 	drawSlice(300, 0.2, slice2Xoffset/2);
+ 	drawSlice(300, 0.3, slice2Xoffset/3);
+    drawSlice(300, 0.4, slice2Xoffset/4);
+	
+    requestAnimationFrame(draw);
+
+}
+
+/**
+ * Creates a program for use in the WebGL context gl, and returns the
+ * identifier for that program.  If an error occurs while compiling or
+ * linking the program, an exception of type String is thrown.  The error
+ * string contains the compilation or linking error.  If no error occurs,
+ * the program identifier is the return value of the function.
+ */
+function createProgram(gl, vertexShaderSource, fragmentShaderSource) {
+   var vsh = gl.createShader( gl.VERTEX_SHADER );
+   gl.shaderSource( vsh, vertexShaderSource );
+   gl.compileShader( vsh );
+   if ( ! gl.getShaderParameter(vsh, gl.COMPILE_STATUS) ) {
+      throw "Error in vertex shader:  " + gl.getShaderInfoLog(vsh);
+   }
+   var fsh = gl.createShader( gl.FRAGMENT_SHADER );
+   gl.shaderSource( fsh, fragmentShaderSource );
+   gl.compileShader( fsh );
+   if ( ! gl.getShaderParameter(fsh, gl.COMPILE_STATUS) ) {
+      throw "Error in fragment shader:  " + gl.getShaderInfoLog(fsh);
+   }
+   var prog = gl.createProgram();
+   gl.attachShader( prog, vsh );
+   gl.attachShader( prog, fsh );
+   gl.linkProgram( prog );
+   if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS) ) {
+      throw "Link error in program:  " + gl.getProgramInfoLog(prog);
+   }
+   return prog;
+}
+
+/**
+ * Initialize the WebGL graphics context
+ */
+function initGL() {
+    var prog = createProgram( gl, vertexShaderSource, fragmentShaderSource );
+    gl.useProgram(prog);
+	
+	gl.enable(gl.DEPTH_TEST);
+	
+    attributeCoords = gl.getAttribLocation(prog, "a_coords");
+    bufferCoords = gl.createBuffer();
+    attributeColor = gl.getAttribLocation(prog, "a_color");
+    bufferColor = gl.createBuffer();
+}
+
+/**
+ * Initialize the program.  This function is called after the page has been loaded.
+ */
+function init() {
+    try {
+        var canvas = document.getElementById("webglcanvas");
+        var options = {  // no need for alpha channel or depth buffer in this program
+            alpha: false,
+            depth: true
+        };
+        gl = canvas.getContext("webgl", options) || 
+                         canvas.getContext("experimental-webgl", options);
+        if ( ! gl ) {
+            throw "Browser does not support WebGL";
+        }
+    }
+    catch (e) {
+        document.getElementById("canvas-holder").innerHTML =
+            "<p>Sorry, could not get a WebGL graphics context.</p>";
+        return;
+    }
+    try {
+        initGL();  // initialize the WebGL graphics context
+    }
+    catch (e) {
+        document.getElementById("canvas-holder").innerHTML =
+            "<p>Sorry, could not initialize the WebGL graphics context:" + e + "</p>";
+        return;
+    }
+    fillYCoords();
+    draw();    // draw the image
+}
+
+</script>
+</head>
+<body onload="init()" class="vsc-initialized">
+
+<h2>Parallax starter code</h2>
+
+<noscript><p><b>Sorry, but this page requires JavaScript.</b></p></noscript>
+
+<div id="canvas-holder">
+<canvas id="webglcanvas" width="500" height="500"></canvas>
+</div>
+
+
+
+</body></html>
