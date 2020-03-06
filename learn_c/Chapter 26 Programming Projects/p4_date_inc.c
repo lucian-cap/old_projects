@@ -6,6 +6,9 @@ int main(void){
     struct tm og_date;
     int day_shift, time;
 
+    og_date.tm_sec = og_date.tm_min = og_date.tm_hour = 0;
+    og_date.tm_isdst = -1;
+
     printf("Enter the month: ");
     scanf("%d", &og_date.tm_mon);
     og_date.tm_mon--;
