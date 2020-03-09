@@ -12,7 +12,7 @@ int main(void){
             max = num;
         }
         printf("Enter a number: ");
-        scanf("%.4f", &num);
+        scanf("%f", &num);
     }
 
     printf("The largest number entered was %f", max);
