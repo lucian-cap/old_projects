@@ -1,0 +1,2 @@
+# Chapter 21: The Standard Library
+This chapter discusses the abilities of the standard library and what it is used for, including changes made in C99, and some small disucssion on stddef.h and stdbool.h .
