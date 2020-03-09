@@ -28,6 +28,7 @@ int main(void){
     char code;
 
     for(;;){
+        printf("\n\nOperation Codes: Insert: 'i', Search 's', Update Quantity: 'u', Change Price: 'c', Print: 'p', Quit: 'q'\nEnter operation code: ");
         printf("Enter operation code: ");
         scanf(" %c", &code);
 

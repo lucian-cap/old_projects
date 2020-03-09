@@ -25,8 +25,6 @@ void reduce(int numerator, int denominator, int *reduced_numerator, int *reduced
     m = (numerator > denominator) ? numerator : denominator;
     n = (numerator < denominator) ? numerator : denominator;
 
-    printf("%d %d", m, n);
-
     while(n != 0){
         remainder = m % n;
         m = n;

@@ -13,7 +13,7 @@ int main(int argc, char *argv[]){
     }
 
     if((fp = fopen(argv[1], "r")) == NULL){
-        printf("%s could NOT be opened. Please check the files presence in the local directory.\n");
+        printf("%s could NOT be opened. Please check the files presence in the local directory.\n", argv[1]);
         exit(EXIT_FAILURE);
     }
 
@@ -24,7 +24,7 @@ int main(int argc, char *argv[]){
             putchar(ch);
         }
     }
-    flcose(fp);
+    fclose(fp);
 
     return 0;
 }

@@ -11,6 +11,7 @@ int main(void){
     while((*pos = getchar()) != '\n'){
         pos++;
     }
+    pos--;
 
     printf("Reversal is: ");
     while(pos >= &sen[0]){

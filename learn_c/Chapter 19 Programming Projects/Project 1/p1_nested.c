@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "stackadt.h"
+#include "../stackadt.h"
 
 int main(void){
 

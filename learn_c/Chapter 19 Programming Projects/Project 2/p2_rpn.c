@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <ctype.h>
-#include "stackadt.h"
+#include "../stackadt.h"
 
 int main(void){
 
