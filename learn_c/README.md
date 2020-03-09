@@ -8,6 +8,7 @@ My goal with this book was to "fully" learn the C language, gain more experience
 * These projects were completed with GCC version 8.2.0
 * The class I purchased this book for only covered up to Chapter 12: Pointers and Arrays, however I didn't keep much of the code I wrote for that class. 
 * A number of the early projects were designed around modifying code provide by the author of the book, and I will indicates which projects were like this in the chapters readme.md file. 
+* Should've worked on formatting each project (as far as file structure) as I was going and not right at the very end. In contrast to my original plans each project won't have a README detailing what the project does, instead I'll just improve and make sure TO do that while going through the C++, Java, and Python books.
 
 ## Skipped Chapters
 I read each chapter in the book, however these chapters may not be seen here. Following you'll find the reasons for this.
